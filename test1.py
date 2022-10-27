@@ -7,7 +7,7 @@ users = 'Data/BX-Users.csv'
 
 # Load the files into dataframes.
 df_rat = pd.read_csv(file_ratings, sep=';', encoding='unicode_escape')
-df_books = pd.read_csv(book, sep=';', encoding='unicode_escape', on_bad_lines='warn')
+df_books = pd.read_csv(book, sep=';', encoding='unicode_escape', on_bad_lines='warn')  # Some entries are malformed.
 df_users = pd.read_csv(users, sep=';', encoding='unicode_escape')
 
 df_books.describe()
@@ -23,7 +23,7 @@ df_books.dropna(inplace=True)
 b = df_books.shape
 c = int((a[0] - b[0]))
 
-print("Removed %s entries", c)
+print("Removed %s entries" % c)
 # df_books['Year-Of-Publication'] = df_books['Year-Of-Publication'].astype("int32")
 '''
 df_rat.describe()
