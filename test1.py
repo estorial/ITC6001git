@@ -1,5 +1,5 @@
 import pandas as pd
-from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 from contextlib import redirect_stderr
 import re
 
@@ -20,19 +20,40 @@ with open('mal.txt', 'w') as h:
     with redirect_stderr(h):
         df_books = pd.read_csv(book, sep=';', encoding='iso-8859-1', on_bad_lines='warn', low_memory=False)
 
-temp_list = []
+malformed_line_list = []
 
 # Next read the file and identify the lines using regex.
 # Temp_list contains the lines in the BX-Books.csv that are malformed.
 
 with open('mal.txt', 'r') as f:
     for line in f:
-    # The following if-else statements goes around the index error created from the last line containing only /n char
+        # The following if-else statements goes around the index error created from the "empty" last line.
         if re.findall('\d+:', line):
             line_num = re.findall('\d+:', line)[0]
         else:
             continue
-        temp_list.append(line_num[:-1])
+        malformed_line_list.append(line_num[:-1])
+# Attempt to read specific lines from the Books.csv file.
+
+malformed_line_index = [int(i)-1 for i in malformed_line_list]  # convert str to ints and account for list index.
+
+malformed_book_lines = []
+
+
+def get_lines(file, line_numbers):
+
+    return (x for i, x in enumerate(file) if i in line_numbers)
+
+
+with open(book, 'r') as g:
+
+    lines = get_lines(g, malformed_line_index)
+
+    for line in lines:
+        malformed_book_lines.append(line)
+
+
+print(malformed_book_lines)
 
 # Drop the last columns with the image URLs from book data frame.
 df_books.drop(['Image-URL-S', 'Image-URL-M', 'Image-URL-L'], axis=1, inplace=True)  # or assign it to new DF
@@ -56,4 +77,3 @@ print("memory:", df_rat.info(memory_usage='deep'))
 print("memory:", df_books.info(memory_usage='deep'))
 print("memory:", df_users.info(memory_usage='deep'))
 '''
-
