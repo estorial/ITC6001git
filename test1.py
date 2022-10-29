@@ -1,5 +1,5 @@
 import pandas as pd
-# from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt
 from contextlib import redirect_stderr
 import re
 
@@ -18,7 +18,8 @@ df_users = pd.read_csv(users, sep=';', encoding='iso-8859-1')
 
 with open('mal.txt', 'w') as h:
     with redirect_stderr(h):
-        df_books = pd.read_csv(book, sep=';', encoding='iso-8859-1', on_bad_lines='warn', low_memory=False)
+        df_books = pd.read_csv(book, sep=';', encoding='iso-8859-1', on_bad_lines='warn',
+                               low_memory=False)
 
 malformed_line_list = []
 
@@ -34,46 +35,52 @@ with open('mal.txt', 'r') as f:
             continue
         malformed_line_list.append(line_num[:-1])
 # Attempt to read specific lines from the Books.csv file.
+# Convert str to ints and account for list index vs pandas index.
 
-malformed_line_index = [int(i)-1 for i in malformed_line_list]  # convert str to ints and account for list index.
+malformed_line_index = [int(i) - 1 for i in malformed_line_list]
 
 malformed_book_lines = []
 
 
 def get_lines(file, line_numbers):
-
     return (x for i, x in enumerate(file) if i in line_numbers)
 
 
 with open(book, 'r') as g:
-
     lines = get_lines(g, malformed_line_index)
 
     for line in lines:
         malformed_book_lines.append(line)
 
+# print(malformed_book_lines)
 
-print(malformed_book_lines)
+# Print shapes of datasets
 
-# Drop the last columns with the image URLs from book data frame.
-df_books.drop(['Image-URL-S', 'Image-URL-M', 'Image-URL-L'], axis=1, inplace=True)  # or assign it to new DF
-a = df_books.shape
+print('Books dataset has {} entries with {} features each.'.format(*df_books.shape))
+print('Ratings dataset has {} entries with {} features each.'.format(*df_rat.shape))
+print('Users dataset has {} entries with {} features each.'.format(*df_users.shape))
+
+print('Books.csv missing values: \n')
+print(pd.DataFrame({'percent_missing': df_books.isnull().sum() * 100 / len(df_books)}))
+print('\n')
+print('Book-Ratings.csv missing values: \n')
+print(pd.DataFrame({'percent_missing': df_rat.isnull().sum() * 100 / len(df_rat)}))
+print('\n')
+print('Users.csv missing values: \n')
+print(pd.DataFrame({'percent_missing': df_users.isnull().sum() * 100 / len(df_users)}))
+print('\n')
+
+df_books[df_books.columns] = df_books[df_books.columns].astype('category') # LUL can't believe it worked
+
+print('Data types for Books.csv')
+print(df_books.dtypes, end='\n')
+df_books.drop(['Image-URL-S', 'Image-URL-M', 'Image-URL-L'], axis=1, inplace=True)
+
+print('Datatypes for Users.csv', end='\n')
+print(df_users.dtypes, end='\n')
 
 # Convert the column Year of publication to Datetime and drop the rows that have malformed year of publication.
 
-df_books['Year-Of-Publication'] = pd.to_numeric(df_books['Year-Of-Publication'], downcast='signed', errors='coerce')
-df_books.dropna(inplace=True)
+df_books['Year-Of-Publication'] = pd.to_datetime(df_books['Year-Of-Publication'], errors='coerce')
+# df_books.dropna(inplace=True)
 
-b = df_books.shape
-c = int((a[0] - b[0]))
-
-print("Removed %s entries" % c)
-# df_books['Year-Of-Publication'] = df_books['Year-Of-Publication'].astype("int32")
-'''
-df_rat.describe()
-df_books.describe()
-df_users.describe()
-print("memory:", df_rat.info(memory_usage='deep'))
-print("memory:", df_books.info(memory_usage='deep'))
-print("memory:", df_users.info(memory_usage='deep'))
-'''
