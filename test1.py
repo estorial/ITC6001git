@@ -70,7 +70,7 @@ print('Users.csv missing values: \n')
 print(pd.DataFrame({'percent_missing': df_users.isnull().sum() * 100 / len(df_users)}))
 print('\n')
 
-df_books[df_books.columns] = df_books[df_books.columns].astype('category') # LUL can't believe it worked
+# df_books[df_books.columns] = df_books[df_books.columns].astype('category') # LUL can't believe it worked
 
 print('Data types for Books.csv')
 print(df_books.dtypes, end='\n')
@@ -79,9 +79,29 @@ df_books.drop(['Image-URL-S', 'Image-URL-M', 'Image-URL-L'], axis=1, inplace=Tru
 print('Datatypes for Users.csv', end='\n')
 print(df_users.dtypes, end='\n')
 
+
+
+df_books.loc[df_books.ISBN == '0789466953','Year-Of-Publication'] = 2000
+df_books.loc[df_books.ISBN == '0789466953','Book-Author'] = "James Buckley"
+df_books.loc[df_books.ISBN == '0789466953','Publisher'] = "DK Publishing Inc"
+df_books.loc[df_books.ISBN == '0789466953','Book-Title'] = "DK Readers: Creating the X-Men, How Comic Books Come to Life (Level 4: Proficient Readers)"
+
+df_books.loc[df_books.ISBN == '078946697X','Year-Of-Publication'] = 2000
+df_books.loc[df_books.ISBN == '078946697X','Book-Author'] = "Michael Teitelbaum"
+df_books.loc[df_books.ISBN == '078946697X','Publisher'] = "DK Publishing Inc"
+df_books.loc[df_books.ISBN == '078946697X','Book-Title'] = "DK Readers: Creating the X-Men, How It All Began (Level 4: Proficient Readers)"
+
+df_books.loc[df_books.ISBN == '2070426769','Year-Of-Publication'] = 2003
+df_books.loc[df_books.ISBN == '2070426769','Book-Author'] = "Jean-Marie Gustave Le ClÃ?Â©zio"
+df_books.loc[df_books.ISBN == '2070426769','Publisher'] = "Gallimard"
+df_books.loc[df_books.ISBN == '2070426769','Book-Title'] = "Peuple du ciel, suivi de 'Les Bergers"
+
 # Convert the column Year of publication to Datetime and drop the rows that have malformed year of publication.
 
-df_books['Year-Of-Publication'] = pd.to_datetime(df_books['Year-Of-Publication'], errors='coerce')
+
+
+
+df_books['Year-Of-Publication'] = pd.to_numeric(df_books['Year-Of-Publication'], errors='coerce')
 # df_books.dropna(inplace=True)
 
 ######
