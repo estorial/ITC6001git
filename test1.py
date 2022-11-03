@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from matplotlib import pyplot as plt
 from contextlib import redirect_stderr
 import re
@@ -54,6 +55,15 @@ with open(book, 'r') as g:
 
 # print(malformed_book_lines)
 
+# Rename columns to be easier to work with.
+# Insert some convoluted way to automate it instead of typing it.
+
+df_books.drop(['Image-URL-S', 'Image-URL-M', 'Image-URL-L'], axis=1, inplace=True) # Not going to use these.
+
+df_books.columns = ['ISBN', 'BookTitle', 'BookAuthor', 'YearOfPublication', 'Publisher']
+df_users.columns = ['UserID', 'Location', 'Age']
+df_rat.columns = ['UserID', 'ISBN', 'BookRating']
+
 # Print shapes of datasets
 
 print('Books dataset has {} entries with {} features each.'.format(*df_books.shape))
@@ -74,34 +84,33 @@ print('\n')
 
 print('Data types for Books.csv')
 print(df_books.dtypes, end='\n')
-df_books.drop(['Image-URL-S', 'Image-URL-M', 'Image-URL-L'], axis=1, inplace=True)
 
-print('Datatypes for Users.csv', end='\n')
-print(df_users.dtypes, end='\n')
+df_books.loc[df_books.ISBN == '0789466953', 'YearOfPublication'] = 2000
+df_books.loc[df_books.ISBN == '0789466953', 'BookAuthor'] = 'James Buckley'
+df_books.loc[df_books.ISBN == '0789466953', 'Publisher'] = 'DK Publishing Inc'
+df_books.loc[df_books.ISBN == '0789466953', 'Book-Title'] = 'DK Readers: Creating the X-Men, How Comic Books Come to Life (Level 4: Proficient Readers)'
 
+df_books.loc[df_books.ISBN == '078946697X', 'YearOfPublication'] = 2000
+df_books.loc[df_books.ISBN == '078946697X', 'BookAuthor'] = 'Michael Teitelbaum'
+df_books.loc[df_books.ISBN == '078946697X', 'Publisher'] = 'DK Publishing Inc'
+df_books.loc[df_books.ISBN == '078946697X', 'BookTitle'] = 'DK Readers: Creating the X-Men, How It All Began (Level 4: Proficient Readers)'
 
-
-df_books.loc[df_books.ISBN == '0789466953','Year-Of-Publication'] = 2000
-df_books.loc[df_books.ISBN == '0789466953','Book-Author'] = "James Buckley"
-df_books.loc[df_books.ISBN == '0789466953','Publisher'] = "DK Publishing Inc"
-df_books.loc[df_books.ISBN == '0789466953','Book-Title'] = "DK Readers: Creating the X-Men, How Comic Books Come to Life (Level 4: Proficient Readers)"
-
-df_books.loc[df_books.ISBN == '078946697X','Year-Of-Publication'] = 2000
-df_books.loc[df_books.ISBN == '078946697X','Book-Author'] = "Michael Teitelbaum"
-df_books.loc[df_books.ISBN == '078946697X','Publisher'] = "DK Publishing Inc"
-df_books.loc[df_books.ISBN == '078946697X','Book-Title'] = "DK Readers: Creating the X-Men, How It All Began (Level 4: Proficient Readers)"
-
-df_books.loc[df_books.ISBN == '2070426769','Year-Of-Publication'] = 2003
-df_books.loc[df_books.ISBN == '2070426769','Book-Author'] = "Jean-Marie Gustave Le ClÃ?Â©zio"
-df_books.loc[df_books.ISBN == '2070426769','Publisher'] = "Gallimard"
-df_books.loc[df_books.ISBN == '2070426769','Book-Title'] = "Peuple du ciel, suivi de 'Les Bergers"
+df_books.loc[df_books.ISBN == '2070426769', 'YearOfPublication'] = 2003
+df_books.loc[df_books.ISBN == '2070426769', 'BookAuthor'] = "Jean-Marie Gustave Le ClÃ?Â©zio"
+df_books.loc[df_books.ISBN == '2070426769', 'Publisher'] = 'Gallimard'
+df_books.loc[df_books.ISBN == '2070426769', 'BookTitle'] = 'Peuple du ciel, suivi de \'Les Bergers'
 
 # Convert the column Year of publication to Datetime and drop the rows that have malformed year of publication.
 
-
-
-
-df_books['Year-Of-Publication'] = pd.to_numeric(df_books['Year-Of-Publication'], errors='coerce')
+df_books['YearOfPublication'] = pd.to_numeric(df_books['YearOfPublication'], errors='coerce')
 # df_books.dropna(inplace=True)
 
-######
+######User Exploration########
+print('Datatypes for Users.csv', end='\n')
+print(df_users.dtypes, end='\n \n')
+
+print(f'There are {df_users.UserID.nunique()} unique user ID\'s and {df_users.UserID.count()} unique entries.')
+print(sorted(df_users.Age.unique()))
+
+df_users.loc[(df_users.Age<5) | (df_users.Age>100), 'Age'] = np.nan
+
