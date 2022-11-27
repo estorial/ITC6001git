@@ -17,7 +17,7 @@ df_users = pd.read_csv(users, sep=';', encoding='iso-8859-1')
 # The next code block will attempt to find the ISBNs of the books that are malformed.
 # First redirect the error log to a file.
 
-with open('mal.txt', 'w',encoding='iso-8859-1') as h:
+with open('mal.txt', 'w', encoding='iso-8859-1') as h:
     with redirect_stderr(h):
         df_books = pd.read_csv(book, sep=';', encoding='iso-8859-1', on_bad_lines='warn',
                                low_memory=False)
@@ -59,7 +59,7 @@ print(malformed_book_lines)
 # Rename columns to be easier to work with.
 # Insert some convoluted way to automate it instead of typing it.
 
-df_books.drop(['Image-URL-S', 'Image-URL-M', 'Image-URL-L'], axis=1, inplace=True) # Not going to use these.
+df_books.drop(['Image-URL-S', 'Image-URL-M', 'Image-URL-L'], axis=1, inplace=True)  # Not going to use these.
 
 df_books.columns = ['ISBN', 'BookTitle', 'BookAuthor', 'YearOfPublication', 'Publisher']
 df_users.columns = ['UserID', 'Location', 'Age']
@@ -106,25 +106,17 @@ df_books.loc[df_books.ISBN == '2070426769', 'BookTitle'] = 'Peuple du ciel, suiv
 df_books['YearOfPublication'] = pd.to_numeric(df_books['YearOfPublication'], errors='coerce')
 # df_books.dropna(inplace=True)
 
-######User Exploration########
+# #####User Exploration########
 print('Datatypes for Users.csv', end='\n')
 print(df_users.dtypes, end='\n \n')
 
 print(f'There are {df_users.UserID.nunique()} unique user ID\'s and {df_users.UserID.count()} unique entries.')
 print(sorted(df_users.Age.unique()))
 
-df_users.loc[(df_users.Age<5) | (df_users.Age>100), 'Age'] = np.nan
+df_users.loc[(df_users.Age < 5) | (df_users.Age > 100), 'Age'] = np.nan
 
 print(f'There are {df_users.Age.isnull().sum()} empty age values in the set of {df_users.UserID.count()} users (or {(df_users.Age.isnull().sum()/df_users.UserID.count())*100:.2f}%).')
-'''
-u = df_users.Age.value_counts().sort_index()
-plt.figure(figsize=(20, 10))
-plt.rcParams.update({'font.size': 15}) # Set larger plot font size
-plt.bar(u.index, u.values)
-plt.xlabel('Age')
-plt.ylabel('counts')
-plt.show()
-'''
+
 # Fill the missing user ages with the mean value. Probably not going to be used later due to 40% of the values are empty.
 df_users.Age.fillna(df_users.Age.mean())
 # Print the authors with the most amount of entries.
@@ -133,14 +125,29 @@ print(f'The authors with the most amount of entries on the dataframe:\n\
         {df_books.groupby("BookAuthor").size().sort_values(ascending=False)}')
 df_auth_group['BookAuthor'].nunique()
 
-#df_rat_gb_isbn = df_rat.groupby('ISBN').size().sort_values(ascending=False)
+# df_rat_gb_isbn = df_rat.groupby('ISBN').size().sort_values(ascending=False)
 
 df_rat_gb_isbn = df_rat.groupby('ISBN')
 
 
-df_book_rat_isbn = df_books.merge(df_rat, how='left', on='ISBN')
+df_book_rat_isbn = df_books.merge(df_rat, how='inner', on='ISBN')
 
-print(f'The authors with the most amount of entries on the dataframe:\n\
-        {df_book_rat_isbn.groupby("BookAuthor").size().sort_values(ascending=False)}')
+print(f'The top 10 authors with the most amount of rates:\n\
+        {df_book_rat_isbn.groupby("BookAuthor").size().sort_values(ascending=False).head(10)}')
 
-print(pd.DataFrame({'percent_missing': df_book_rat_isbn.isnull().sum() * 100 / len(df_book_rat_isbn)}))
+print(f'The top 10 books with the most amount of user ratings are:\n\
+        {df_book_rat_isbn.groupby("ISBN").size().sort_values(ascending=False).head(10)}')
+
+
+print(pd.DataFrame({'percent_missing on merged dataframe': df_book_rat_isbn.isnull().sum() * 100 / len(df_book_rat_isbn)}))
+
+
+"""
+u = df_users.Age.value_counts().sort_index()
+plt.figure(figsize=(20, 10))
+plt.rcParams.update({'font.size': 15})  # Set larger plot font size
+plt.bar(u.index, u.values)
+plt.xlabel('Age')
+plt.ylabel('counts')
+plt.show()
+"""
